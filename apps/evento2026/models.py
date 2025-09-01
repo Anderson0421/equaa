@@ -18,12 +18,12 @@ class Registration(models.Model):
 
     nombres = models.CharField(max_length=150, blank=True, null=True)
     apellidos = models.CharField(max_length=150, blank=True, null=True)
-    correo = models.EmailField(blank=True, null=True)
+    correo = models.EmailField(unique=True, blank=True, null=True)
     telefono = models.CharField(max_length=50, blank=True, null=True)
     ocupacion = models.CharField(max_length=200, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
-
+    
     def __str__(self):
         if self.nombres:
             return f"{self.nombres} {self.apellidos} - {self.correo}"

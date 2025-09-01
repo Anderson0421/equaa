@@ -8,6 +8,7 @@ class ParticipantSerializer(serializers.ModelSerializer):
 
 class RegistrationSerializer(serializers.ModelSerializer):
     participants = ParticipantSerializer(many=True, required=False)
+    correo = serializers.EmailField(required=False, allow_null=True, allow_blank=True)
 
     class Meta:
         model = Registration
@@ -36,4 +37,25 @@ class RegistrationSerializer(serializers.ModelSerializer):
         registration = Registration.objects.create(**validated_data)
         for p in participants_data:
             Participant.objects.create(group=registration, **p)
+        return registration
+
+
+
+class GroupRegistrationSerializer(serializers.ModelSerializer):
+    participants = ParticipantSerializer(many=True, required=True)
+
+    class Meta:
+        model = Registration
+        fields = [
+            "id", "pais", "organizacion", "participaPeerReview", "esEvaluador",
+            "cvFile", "nombres", "apellidos", "correo", "telefono", "ocupacion",
+            "participants",
+        ]
+
+    def create(self, validated_data):
+        participants_data = validated_data.pop("participants", [])
+        registration = Registration.objects.create(**validated_data)
+        Participant.objects.bulk_create(
+            [Participant(group=registration, **p) for p in participants_data]
+        )
         return registration
